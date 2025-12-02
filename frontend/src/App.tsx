@@ -5,9 +5,9 @@ import CrowdsaleArtifact from './CrowdsaleABI.json'
 import StakingArtifact from './StakingABI.json'
 import './index.css'
 
-const TOKEN_ADDRESS = "0xF6327f266d87d8E1bC56D9CDad7e531E9Eed2614"
+const TOKEN_ADDRESS = "0x6e45BC8a1CC39d9E7b8EC743A95eDB4ec2b29c8b"
 const CROWDSALE_ADDRESS = "0xC75778FD4643F304ba6CF5523bAC0676F9E10268"
-const STAKING_ADDRESS = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+const STAKING_ADDRESS = "0x04A40bAee48338F8aD66B21c8195B7cF34aBeBCC"
 const SEPOLIA_CHAIN_ID = "11155111"
 const LOCAL_CHAIN_ID = "31337" // Hardhat Localhost
 
@@ -36,8 +36,8 @@ function App() {
         const network = await provider.getNetwork()
         const chainId = network.chainId.toString()
 
-        if (chainId !== SEPOLIA_CHAIN_ID && chainId !== LOCAL_CHAIN_ID) {
-          setNetworkError("Por favor, conecta a Sepolia o Localhost")
+        if (chainId !== SEPOLIA_CHAIN_ID) {
+          setNetworkError("Por favor, conecta a la red Sepolia")
           return
         }
 
