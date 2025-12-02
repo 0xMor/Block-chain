@@ -4,8 +4,8 @@ import CoinArtifact from './CoinABI.json'
 import CrowdsaleArtifact from './CrowdsaleABI.json'
 import './index.css'
 
-const TOKEN_ADDRESS = "0xDFe7B8f5c17cE09aBB9a6B44b8e9BAD35dCBcA70"
-const CROWDSALE_ADDRESS = "0x27BcD03176a9aD3ad6c4a80caddA4B665024C07F"
+const TOKEN_ADDRESS = "0xF6327f266d87d8E1bC56D9CDad7e531E9Eed2614"
+const CROWDSALE_ADDRESS = "0xC75778FD4643F304ba6CF5523bAC0676F9E10268"
 const SEPOLIA_CHAIN_ID = "11155111"
 
 function App() {
@@ -16,6 +16,7 @@ function App() {
   const [networkError, setNetworkError] = useState<string>('')
   const [buyAmount, setBuyAmount] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isOwner, setIsOwner] = useState<boolean>(false)
 
   const connectWallet = async () => {
     if (window.ethereum) {
@@ -44,6 +45,17 @@ function App() {
         setTokenName(name)
         setTokenSymbol(symbol)
         setUserBalance(ethers.formatUnits(balance, 18))
+
+        // Check ownership
+        const crowdsaleContract = new ethers.Contract(CROWDSALE_ADDRESS, CrowdsaleArtifact.abi, signer)
+        try {
+          const owner = await crowdsaleContract.owner()
+          if (owner.toLowerCase() === address.toLowerCase()) {
+            setIsOwner(true)
+          }
+        } catch (e) {
+          console.error("Error checking owner:", e)
+        }
 
       } catch (error) {
         console.error("Error connecting wallet:", error)
@@ -78,6 +90,28 @@ function App() {
     } catch (error) {
       console.error("Error buying tokens:", error)
       alert("Error al comprar tokens. Revisa la consola.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const withdrawFunds = async () => {
+    if (!userAddress || !isOwner) return
+
+    try {
+      setIsLoading(true)
+      const provider = new ethers.BrowserProvider(window.ethereum)
+      const signer = await provider.getSigner()
+
+      const crowdsaleContract = new ethers.Contract(CROWDSALE_ADDRESS, CrowdsaleArtifact.abi, signer)
+
+      const tx = await crowdsaleContract.withdraw()
+      await tx.wait()
+
+      alert("¡Retiro exitoso! Los fondos han sido enviados a tu wallet.")
+    } catch (error) {
+      console.error("Error withdrawing funds:", error)
+      alert("Error al retirar fondos. Revisa la consola.")
     } finally {
       setIsLoading(false)
     }
@@ -188,14 +222,27 @@ function App() {
                 onClick={buyTokens}
                 disabled={isLoading || !buyAmount}
                 className={`w-full font-bold text-lg py-4 rounded-xl transition-all duration-300 ${isLoading || !buyAmount
-                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-green-400 to-blue-500 text-white hover:shadow-lg hover:shadow-green-500/25 hover:scale-[1.02] active:scale-[0.98]'
+                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-green-400 to-blue-500 text-white hover:shadow-lg hover:shadow-green-500/25 hover:scale-[1.02] active:scale-[0.98]'
                   }`}
               >
                 {isLoading ? 'Procesando...' : 'COMPRAR NINKA'}
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Owner Withdraw Button */}
+      {isOwner && (
+        <div className="relative w-full max-w-lg mt-8 animate-fade-in-up">
+          <button
+            onClick={withdrawFunds}
+            disabled={isLoading}
+            className="w-full bg-red-500/20 border border-red-500/50 text-red-200 font-bold text-lg py-4 rounded-xl hover:bg-red-500/30 transition-all duration-300 backdrop-blur-sm"
+          >
+            {isLoading ? 'Procesando...' : '⚠️ RETIRAR FONDOS (SOLO DUEÑO)'}
+          </button>
         </div>
       )}
 
