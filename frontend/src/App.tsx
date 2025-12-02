@@ -9,7 +9,6 @@ const TOKEN_ADDRESS = "0x6e45BC8a1CC39d9E7b8EC743A95eDB4ec2b29c8b"
 const CROWDSALE_ADDRESS = "0xC75778FD4643F304ba6CF5523bAC0676F9E10268"
 const STAKING_ADDRESS = "0x04A40bAee48338F8aD66B21c8195B7cF34aBeBCC"
 const SEPOLIA_CHAIN_ID = "11155111"
-const LOCAL_CHAIN_ID = "31337" // Hardhat Localhost
 
 function App() {
   const [tokenName, setTokenName] = useState<string>('')
